@@ -359,7 +359,7 @@ if menu == "Dashboard Geral":
 
         servicos_por_funcionario = pd.read_sql_query("""
         SELECT
-            funcionarios.nome AS Funcionário,
+            funcionarios.nome AS funcionário,
             COUNT(servicos.id) AS Total
         FROM funcionarios
         LEFT JOIN servicos
@@ -386,7 +386,7 @@ if menu == "Dashboard Geral":
         ranking_escolas = pd.read_sql_query("""
         SELECT
             escolas.nome AS Escola,
-            COUNT(servicos.id) AS Total_Serviços,
+            COUNT(servicos.id) AS total_serviços,
             COALESCE(SUM(servicos.valor), 0) AS Valor_Total
         FROM escolas
         LEFT JOIN servicos
@@ -407,7 +407,7 @@ if menu == "Dashboard Geral":
         ranking_funcionarios = pd.read_sql_query("""
         SELECT
             funcionarios.nome AS Funcionário,
-            COUNT(servicos.id) AS Total_Serviços,
+            COUNT(servicos.id) AS total_serviços,
             COALESCE(SUM(servicos.valor), 0) AS Valor_Total
         FROM funcionarios
         LEFT JOIN servicos
@@ -998,7 +998,7 @@ if menu == "Página Principal":
                     with st.form("form_editar_servico"):
 
                         novo_funcionario = st.selectbox(
-                            "Funcionário",
+                            "funcionário",
                             lista_funcionarios,
                             index=indice_funcionario
                         )
@@ -1080,9 +1080,9 @@ if menu == "Página Principal":
                         
                     resumo = pd.read_sql_query("""
                     SELECT
-                        funcionarios.nome AS Funcionário,
-                        COUNT(servicos.id) AS Total_Serviços,
-                        SUM(servicos.valor) AS Total_Recebido
+                        funcionarios.nome AS funcionário,
+                        COUNT(servicos.id) AS total_serviços,
+                        SUM(servicos.valor) AS total_recebido
                     FROM servicos
 
                     INNER JOIN funcionarios
@@ -1092,8 +1092,10 @@ if menu == "Página Principal":
 
                     GROUP BY funcionarios.nome
 
-                    ORDER BY Total_Recebido DESC
+                    ORDER BY total_recebido DESC
                     """, conn, params=(int(escola_id),))
+
+                    resumo.columns = resumo.columns.str.lower()
 
                     if resumo.empty:
 
@@ -1105,8 +1107,8 @@ if menu == "Página Principal":
                         # CARDS RESUMO
                         # ==============================
 
-                        total_servicos = resumo["Total_Serviços"].sum()
-                        total_pago = resumo["Total_Recebido"].sum()
+                        total_servicos = resumo["total_serviços"].sum()
+                        total_pago = resumo["total_recebido"].sum()
 
                         c1, c2 = st.columns(2)
 
@@ -1142,8 +1144,8 @@ if menu == "Página Principal":
                         st.subheader("Valores por Funcionário")
 
                         grafico_valores = resumo.set_index(
-                            "Funcionário"
-                        )["Total_Recebido"]
+                            "funcionário"
+                        )["total_recebido"]
 
                         st.bar_chart(grafico_valores)
 
@@ -1156,7 +1158,7 @@ if menu == "Página Principal":
                         st.subheader("Quantidade de Serviços")
 
                         grafico_servicos = resumo.set_index(
-                            "Funcionário"
-                        )["Total_Serviços"]
+                            "funcionário"
+                        )["total_serviços"]
 
                         st.bar_chart(grafico_servicos)
