@@ -1,6 +1,7 @@
 import streamlit as st
-import sqlite3
-import pandas as pd
+import os
+import psycopg2
+from sqlalchemy import create_engineimport pandas as pd
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -94,7 +95,12 @@ div[data-testid="stAlert"] {
 # BANCO DE DADOS
 # =========================
 
-conn = sqlite3.connect("sistema_escolas.db", check_same_thread=False)
+DATABASE_URL = st.secrets["DATABASE_URL"]
+
+engine = create_engine(DATABASE_URL)
+
+conn = engine.raw_connection()
+
 cursor = conn.cursor()
 
 def gerar_excel(df):
@@ -456,7 +462,7 @@ if menu == "Painel Administrativo":
                 INSERT INTO escolas (
                     nome,
                     ativo
-                ) VALUES (?, ?)
+                ) VALUES (%s, %s)
                 """, (
                     nome_escola,
                     int(ativo_escola)
@@ -517,8 +523,8 @@ if menu == "Painel Administrativo":
 
                         cursor.execute("""
                         UPDATE escolas
-                        SET nome = ?, ativo = ?
-                        WHERE id = ?
+                        SET nome = %s, ativo = %s
+                        WHERE id = %s
                         """, (
                             novo_nome_escola,
                             int(novo_status_escola),
@@ -535,7 +541,7 @@ if menu == "Painel Administrativo":
                         verifica_servicos = pd.read_sql_query("""
                         SELECT COUNT(*) AS total
                         FROM servicos
-                        WHERE escola_id = ?
+                        WHERE escola_id = %s
                         """, conn, params=(int(escola_id_editar),))
 
                         total_servicos = verifica_servicos.iloc[0]["total"]
@@ -551,7 +557,7 @@ if menu == "Painel Administrativo":
 
                             cursor.execute("""
                             DELETE FROM escolas
-                            WHERE id = ?
+                            WHERE id = %s
                             """, (
                                 int(escola_id_editar),
                             ))
@@ -590,7 +596,7 @@ if menu == "Painel Administrativo":
                 INSERT INTO funcionarios (
                     nome,
                     ativo
-                ) VALUES (?, ?)
+                ) VALUES (%s, %s)
                 """, (
                     nome_funcionario,
                     int(ativo_funcionario)
@@ -651,8 +657,8 @@ if menu == "Painel Administrativo":
 
                         cursor.execute("""
                         UPDATE funcionarios
-                        SET nome = ?, ativo = ?
-                        WHERE id = ?
+                        SET nome = %s, ativo = %s
+                        WHERE id = %s
                         """, (
                             novo_nome_funcionario,
                             int(novo_status_funcionario),
@@ -669,7 +675,7 @@ if menu == "Painel Administrativo":
                         verifica_servicos = pd.read_sql_query("""
                         SELECT COUNT(*) AS total
                         FROM servicos
-                        WHERE funcionario_id = ?
+                        WHERE funcionario_id = %s
                         """, conn, params=(int(funcionario_id_editar),))
 
                         total_servicos = verifica_servicos.iloc[0]["total"]
@@ -685,7 +691,7 @@ if menu == "Painel Administrativo":
 
                             cursor.execute("""
                             DELETE FROM funcionarios
-                            WHERE id = ?
+                            WHERE id = %s
                             """, (
                                 int(funcionario_id_editar),
                             ))
@@ -732,8 +738,8 @@ if menu == "Painel Administrativo":
                 cursor.execute("""
                 UPDATE configuracoes
                 SET
-                    valor_dia_util = ?,
-                    valor_final_semana = ?
+                    valor_dia_util = %s,
+                    valor_final_semana = %s
                 WHERE id = 1
                 """, (
                     novo_util,
@@ -867,7 +873,7 @@ if menu == "Página Principal":
                                 data,
                                 descricao,
                                 valor
-                            ) VALUES (?, ?, ?, ?, ?)
+                            ) VALUES (%s, %s, %s, %s)
                             """, (
                                 int(escola_id),
                                 int(funcionario_id),
@@ -916,7 +922,7 @@ if menu == "Página Principal":
             FROM servicos
             INNER JOIN funcionarios
                 ON funcionarios.id = servicos.funcionario_id
-            WHERE servicos.escola_id = ?
+            WHERE servicos.escola_id = %s
             ORDER BY servicos.data {ordem}
             """, conn, params=(int(escola_id),))
 
@@ -1033,11 +1039,11 @@ if menu == "Página Principal":
                             cursor.execute("""
                             UPDATE servicos
                             SET
-                                funcionario_id = ?,
-                                data = ?,
-                                descricao = ?,
-                                valor = ?
-                            WHERE id = ?
+                                funcionario_id = %s,
+                                data = %s,
+                                descricao = %s,
+                                valor = %s
+                            WHERE id = %s
                             """, (
                                 int(novo_funcionario_id),
                                 nova_data.strftime("%Y-%m-%d"),
@@ -1055,7 +1061,7 @@ if menu == "Página Principal":
 
                             cursor.execute("""
                             DELETE FROM servicos
-                            WHERE id = ?
+                            WHERE id = %s
                             """, (
                                 int(servico_id),
                             ))
@@ -1081,7 +1087,7 @@ if menu == "Página Principal":
                     INNER JOIN funcionarios
                         ON funcionarios.id = servicos.funcionario_id
 
-                    WHERE servicos.escola_id = ?
+                    WHERE servicos.escola_id = %s
 
                     GROUP BY funcionarios.nome
 

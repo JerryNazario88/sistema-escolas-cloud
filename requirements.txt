@@ -5,3 +5,5 @@ openpyxl
 reportlab
 psycopg2-binary
 sqlalchemy
+psycopg2-binary
+sqlalchemy
