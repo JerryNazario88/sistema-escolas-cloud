@@ -874,7 +874,7 @@ if menu == "Página Principal":
                                 data,
                                 descricao,
                                 valor
-                            ) VALUES (%s, %s, %s, %s)
+                            ) VALUES (%s, %s, %s, %s, %s)
                             """, (
                                 int(escola_id),
                                 int(funcionario_id),
