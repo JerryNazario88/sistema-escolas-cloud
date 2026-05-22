@@ -350,7 +350,7 @@ if menu == "Dashboard Geral":
             st.info("Nenhuma informação disponível.")
         else:
             st.bar_chart(
-                valor_por_escola.set_index("Escola")["Total"]
+                valor_por_escola.set_index("escola")["total"]
             )
 
     with col_graf2:
@@ -372,7 +372,7 @@ if menu == "Dashboard Geral":
             st.info("Nenhuma informação disponível.")
         else:
             st.bar_chart(
-                servicos_por_funcionario.set_index("Funcionário")["Total"]
+                servicos_por_funcionario.set_index("funcionário")["total"]
             )
 
     st.divider()
