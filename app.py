@@ -222,7 +222,7 @@ def gerar_pdf(servicos, escola_nome):
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS escolas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY SERIAL,
     nome TEXT,
     ativo INTEGER
 )
@@ -230,7 +230,7 @@ CREATE TABLE IF NOT EXISTS escolas (
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS funcionarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY SERIAL,
     nome TEXT,
     ativo INTEGER
 )
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS configuracoes (
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS servicos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY SERIAL,
     escola_id INTEGER,
     funcionario_id INTEGER,
     data TEXT,
